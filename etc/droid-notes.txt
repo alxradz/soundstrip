@@ -1,0 +1,11 @@
+12-08 11:32:00.573: DEBUG/soundstrip:DroidAlbumStore$:loadAlbums(5000):
+album_art:STRING=/mnt/sdcard/Android/data/com.android.providers.media/albumthumbs/1354643619124,
+numsongs:INT=12,
+artist_key:STRING=	E	/	I	1	/	+	M		+	7	I	+	=	/	,
+artist_id:INT=1,
+artist:STRING=A Perfect Circle,
+maxyear:INT=2004,
+minyear:INT=2004,
+album_key:STRING=	/	?	C	M	7	Q	/		/	U	E	=	7	+	7	M	-817626558,
+album:STRING=Emotive [Explicit],
+_id:INT=1

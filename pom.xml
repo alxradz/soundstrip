@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.hyperscalelogic</groupId>
+  <artifactId>soundstrip</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>apk</packaging>
+  <name>SoundStrip</name>
+
+  <properties>
+    <scala.version>2.9.2</scala.version>
+  </properties>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>sun.misc.unsafe-stub</groupId>
+      <artifactId>sun.misc.unsafe-stub</artifactId>
+      <version>1.0-SNAPSHOT</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>net.sf.trove4j</groupId>
+      <artifactId>trove4j</artifactId>
+      <version>3.0.3</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>13.0.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.code.findbugs</groupId>
+      <artifactId>jsr305</artifactId>
+      <version>2.0.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>android</groupId>
+      <artifactId>android</artifactId>
+      <version>4.2_r1</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.scala-lang</groupId>
+      <artifactId>scala-library</artifactId>
+      <version>${scala.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.actionbarsherlock</groupId>
+      <artifactId>library</artifactId>
+      <version>4.2.0</version>
+    </dependency>
+  </dependencies>
+
+  <repositories>
+    <repository>
+      <id>scala-tools</id>
+      <name>Sonatype OSS Scala Tools</name>
+      <url>
+        https://oss.sonatype.org/content/groups/scala-tools/
+      </url>
+    </repository>
+    <repository>
+      <id>twitter</id>
+      <name>Twitter Public Repo</name>
+      <url>http://maven.twttr.com</url>
+    </repository>
+  </repositories>
+
+  <profiles>
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-jarsigner-plugin</artifactId>
+            <version>1.2</version>
+            <executions>
+              <execution>
+                <id>signing</id>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+                <phase>package</phase>
+                <inherited>true</inherited>
+                <configuration>
+                  <includes>
+                    <include>target/*.apk</include>
+                  </includes>
+                  <keystore>scala-test.keystore</keystore>
+                  <storepass>scalatest</storepass>
+                  <keypass>scalatest</keypass>
+                  <alias>androidscalatest</alias>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+            <artifactId>android-maven-plugin</artifactId>
+            <inherited>true</inherited>
+            <configuration>
+              <sign>
+                <debug>false</debug>
+              </sign>
+            </configuration>
+            <executions>
+              <execution>
+                <id>alignApk</id>
+                <phase>install</phase>
+                <goals>
+                  <goal>zipalign</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+        <artifactId>android-maven-plugin</artifactId>
+        <version>3.4.1</version>
+        <configuration>
+          <androidManifestFile>${project.basedir}/AndroidManifest.xml</androidManifestFile>
+          <assetsDirectory>${project.basedir}/assets</assetsDirectory>
+          <resourceDirectory>${project.basedir}/res</resourceDirectory>
+          <nativeLibrariesDirectory>${project.basedir}/src/main/native</nativeLibrariesDirectory>
+          <sdk>
+            <platform>17</platform>
+          </sdk>
+          <undeployBeforeDeploy>true</undeployBeforeDeploy>
+          <dex>
+            <jvmArguments>
+              <jvmArgument>-Xmx1024M</jvmArgument>
+              <jvmArgument>-XX:MaxPermSize=512M</jvmArgument>
+            </jvmArguments>
+          </dex>
+          <proguard>
+            <skip>false</skip>
+            <config>proguard.cfg</config>
+            <jvmArguments>
+              <jvmArgument>-Xmx1024M</jvmArgument>
+            </jvmArguments>
+          </proguard>
+        </configuration>
+        <extensions>true</extensions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>2.5.1</version>
+        <configuration>
+          <source>1.6</source>
+          <target>1.6</target>
+          <showDeprecation>true</showDeprecation>
+          <showWarnings>true</showWarnings>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>net.alchim31.maven</groupId>
+        <artifactId>scala-maven-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <id>scala-compile-first</id>
+            <phase>process-resources</phase>
+            <configuration>
+              <jvmArgs>
+                <jvmArg>-Xmx1024M</jvmArg>
+              </jvmArgs>
+              <args>
+                <param>-unchecked</param>
+                <param>-deprecation</param>
+                <param>-encoding</param>
+                <param>utf8</param>
+              </args>
+            </configuration>
+            <goals>
+              <goal>add-source</goal>
+              <goal>compile</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>scala-test-compile</id>
+            <phase>process-test-resources</phase>
+            <configuration>
+              <args>
+                <param>-unchecked</param>
+                <param>-deprecation</param>
+                <param>-encoding</param>
+                <param>utf8</param>
+              </args>
+            </configuration>
+            <goals>
+              <goal>testCompile</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>1.7</version>
+        <executions>
+          <execution>
+            <id>add-source</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>add-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>src/main/scala</source>
+              </sources>
+            </configuration>
+          </execution>
+          <execution>
+            <id>add-test-source</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>add-test-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>src/test/scala</source>
+              </sources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+    </plugins>
+  </build>
+
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>net.alchim31.maven</groupId>
+        <artifactId>scala-maven-plugin</artifactId>
+        <version>3.1.0</version>
+        <configuration>
+          <scalaVersion>${scala.version}</scalaVersion>
+        </configuration>
+      </plugin>
+    </plugins>
+  </reporting>
+</project>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">Soundstrip</string>
+  <string name="button_albums">Albums</string>
+  <string name="album_list">Album List</string>
+
+  <dimen name="album_list_art_width">32dp</dimen>
+  <dimen name="album_list_art_height">32dp</dimen>
+
+</resources>
