@@ -4,7 +4,7 @@ import android.app.ListActivity
 import android.os.Bundle
 import android.provider.BaseColumns._
 import android.provider.MediaStore.Audio.AlbumColumns._
-import com.hyperscalelogic.soundstrip.view.AlbumListAdapter
+import com.hyperscalelogic.soundstrip.adapter.AlbumListAdapter
 import com.hyperscalelogic.soundstrip.R
 import com.hyperscalelogic.soundstrip.data.AlbumStore
 import com.hyperscalelogic.soundstrip.ctx.AppCtx

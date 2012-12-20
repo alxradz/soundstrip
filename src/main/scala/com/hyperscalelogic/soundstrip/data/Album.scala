@@ -2,15 +2,15 @@ package com.hyperscalelogic.soundstrip.data
 
 import scala.collection.mutable.{Buffer => MBuffer}
 
-import android.provider.MediaStore.Audio.AlbumColumns._
-import android.provider.BaseColumns._
+import android.provider.MediaStore.Audio.{AlbumColumns => AlCols, AudioColumns => AuCols, AudioColumns}
+import android.provider.{BaseColumns => BaCols}
 
 import android.provider.MediaStore
-import android.content.ContentResolver
-
-import collection.mutable
-import com.hyperscalelogic.android.util.db.DbUtil
+import com.hyperscalelogic.android.util.db.RichCursor._
 import com.hyperscalelogic.android.util.log.Log
+import android.content
+import content.ContentResolver
+import collection.mutable.{Set => MSet, Map => MMap}
 
 class Album(val id: Int,
             val key: Array[Byte],
@@ -47,37 +47,36 @@ private class DroidAlbumStore(val resolver: ContentResolver) extends AlbumStore 
 
   import DroidAlbumStore._
 
-  val map = mutable.Map[Int, Album]()
+  val map = MMap[Int, Album]()
 
   def loadIds(): Array[Int] = {
     val list = Array.newBuilder[Int]
     val cursor = resolver.query(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
-      Array[String](_ID),
+      Array[String](BaCols._ID),
       null,
       null,
       null)
-    DbUtil.foreach(cursor, c => list += c.getInt(0))
+    cursor.foreach(c => list += c.getInt(0))
     list.result()
   }
 
   def init() {
     val llog = log("init")
 
-    val ids = mutable.Set[Int](loadIds().toSeq: _*)
+    val ids = MSet[Int](loadIds().toSeq: _*)
     map.keySet.foreach(id => ids -= id)
 
     val cursor = resolver.query(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
-      Array[String](_ID, ALBUM_KEY, ALBUM, ARTIST, ALBUM_ART),
+      Array[String](BaCols._ID, AlCols.ALBUM_KEY, AlCols.ALBUM, AlCols.ARTIST, AlCols.ALBUM_ART),
       null,
       null,
       null)
 
-    DbUtil.foreach(cursor,
-      c => {
-        val album: Album = new Album(c.getInt(0), c.getString(1).getBytes, c.getString(2), c.getString(3), c.getString(4))
-        map += (album.id -> album)
-        llog.debug("Loaded album: %s", album)
-      }
+    cursor.foreach(c => {
+      val album: Album = new Album(c.getInt(0), c.getString(1).getBytes, c.getString(2), c.getString(3), c.getString(4))
+      map += (album.id -> album)
+      llog.debug("Loaded album: %s", album)
+    }
     )
   }
 
@@ -85,6 +84,15 @@ private class DroidAlbumStore(val resolver: ContentResolver) extends AlbumStore 
     val llog = log("loadAlbums")
     init()
     map.foreach(e => f(e._2))
+  }
+
+  def trackCount(albumId: Int) {
+    val cursor = resolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+      Array[String]("COUNT(%s)".format(BaCols._ID)),
+      "%s = ?".format(AuCols.ALBUM_ID),
+      Array[String](albumId.toString),
+      null)
+    cursor.getInt(0)
   }
 
 }

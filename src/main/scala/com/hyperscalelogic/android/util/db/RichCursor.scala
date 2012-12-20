@@ -4,9 +4,15 @@ import android.database.Cursor
 import android.database.Cursor._
 import com.hyperscalelogic.android.util.log.Printer
 
-object DbUtil {
+object RichCursor {
 
-  def dumpCursor(out: Printer, cursor: Cursor, count: Int = Int.MaxValue) {
+  implicit def enrichCursor(c: Cursor) = new RichCursor(c)
+
+}
+
+class RichCursor(val cursor: Cursor) {
+
+  def dump(out: Printer, count: Int = Int.MaxValue) {
     val lastPos = cursor.getPosition
     var i = 1
     cursor.moveToFirst()
@@ -35,7 +41,7 @@ object DbUtil {
     cursor.moveToPosition(lastPos)
   }
 
-  def foreach(cursor: Cursor, f: (Cursor => Unit)) {
+  def foreach(f: (Cursor => Unit)) {
     cursor.moveToFirst()
     while (!cursor.isAfterLast) {
       f(cursor)
@@ -43,7 +49,7 @@ object DbUtil {
     }
   }
 
-  def inrange(cursor: Cursor, range: Range = Range(0, Int.MaxValue), f: (Cursor => Unit)) {
+  def inrange(range: Range = Range(0, Int.MaxValue), f: (Cursor => Unit)) {
     cursor.moveToPosition(range.start)
     while (!cursor.isAfterLast && range.contains(cursor.getPosition)) {
       f(cursor)

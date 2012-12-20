@@ -12,6 +12,7 @@ import java.lang.IllegalStateException
 import com.hyperscalelogic.android.util.log.Log
 import com.hyperscalelogic.android.util.guava.RichCacheBuilder._
 import com.hyperscalelogic.android.util.core.ConcurrentUtil.runnable
+import com.hyperscalelogic.soundstrip.cfg.AppCfg
 
 trait AppCtx {
   val textEnricher: TextEnricher
@@ -51,9 +52,9 @@ private class DroidAppCtx extends AppCtx {
   private val bitmapCache: LoadingCache[String, Bitmap] =
     newCacheBuilder()
       .recordStats()
-      .weigher(weigher[String, Bitmap]((k, v) => v.getByteCount))
-      .maximumWeight(128 * 1024 * 1024)
-      .build(loader[String, Bitmap](k => BitmapFactory.decodeFile(k)))
+      .weigher((k: String, v: Bitmap) => v.getByteCount)
+      .maximumWeight(AppCfg.APP_CTX_BITMAP_CACHE_SIZE_BYTES)
+      .build((k: String) => BitmapFactory.decodeFile(k))
 
   val textEnricher = TextEnricher()
 

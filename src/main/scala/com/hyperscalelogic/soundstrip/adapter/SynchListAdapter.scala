@@ -1,9 +1,9 @@
-package com.hyperscalelogic.soundstrip.view
+package com.hyperscalelogic.soundstrip.adapter
 
 import android.database.DataSetObserver
 import android.view.{ViewGroup, View}
 
-class SynchronizedListAdapter[T](other: ModifiableListAdapter[T]) extends ModifiableListAdapter[T] {
+class SynchListAdapter[T](other: ModListAdapter[T]) extends ModListAdapter[T] {
 
   def getCount: Int = this.synchronized(other.getCount)
 

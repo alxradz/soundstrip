@@ -6,6 +6,7 @@ import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
 import com.hyperscalelogic.android.util.graphics.ColorUtil._
 import java.util.concurrent.Callable
+import com.hyperscalelogic.soundstrip.cfg.AppCfg
 
 trait TextEnricher {
   def shadeBrackets(str: String, color: Int, scale: Float): SpannableString
@@ -22,8 +23,8 @@ class TextEnricherImpl extends TextEnricher {
   val cache: Cache[String, SpannableString] =
     newCacheBuilder()
       .recordStats()
-      .weigher(weigher[String, SpannableString]((k, v) => v.length()))
-      .maximumWeight(128 * 1024 * 1024)
+      .weigher((k: String, v: SpannableString) => v.length())
+      .maximumWeight(AppCfg.TEXT_ENRICHER_CACHE_SIZE_BYTES)
       .build()
 
   def shadeBrackets(str: String, color: Int, scale: Float): SpannableString = {

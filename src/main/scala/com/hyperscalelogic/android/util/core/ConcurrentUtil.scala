@@ -4,6 +4,7 @@ import com.hyperscalelogic.android.util.log.{Log, Printer}
 import java.util.concurrent.Callable
 
 object ConcurrentUtil {
+
   private val log = Log(this.getClass.getSimpleName)
 
   def runnable(msg: String, f: () => Unit) = new Runnable() {

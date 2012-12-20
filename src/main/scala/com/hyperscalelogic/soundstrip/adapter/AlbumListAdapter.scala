@@ -1,4 +1,4 @@
-package com.hyperscalelogic.soundstrip.view
+package com.hyperscalelogic.soundstrip.adapter
 
 import android.content.{Context => DroidCtx}
 import android.view.{ViewGroup, View, LayoutInflater}
@@ -17,10 +17,11 @@ import com.hyperscalelogic.android.util.log.Log
 object AlbumListAdapter {
   val log = Log(this.getClass.getSimpleName)
 
-  def apply(actx: AppCtx, dctx: DroidCtx, resource: Int): ModifiableListAdapter[Album] = new SynchronizedListAdapter[Album](new AlbumListAdapter(actx, dctx, resource))
+  def apply(actx: AppCtx, dctx: DroidCtx, resource: Int): ModListAdapter[Album] =
+    new SynchListAdapter[Album](new AlbumListAdapter(actx, dctx, resource))
 }
 
-private class AlbumListAdapter(actx: AppCtx, dctx: DroidCtx, resource: Int) extends ModifiableListAdapter[Album] {
+private class AlbumListAdapter(actx: AppCtx, dctx: DroidCtx, resource: Int) extends ModListAdapter[Album] {
 
   import AlbumListAdapter.log
 
@@ -56,7 +57,7 @@ private class AlbumListAdapter(actx: AppCtx, dctx: DroidCtx, resource: Int) exte
     val view = if (convertView == null) inflater.inflate(resource, parent, false) else convertView
     val album = map.get(list.get(position))
 
-    llog.debug("Creating view for album: %s", album)
+    llog.debug("Creating adapter for album: %s", album)
 
     val nameView: TextView = view.findViewById(R.id.txt_album_name).asInstanceOf[TextView]
     nameView.setText(actx.textEnricher.shadeBrackets(album.name, nameView.getCurrentTextColor, 0.55f))
