@@ -16,11 +16,6 @@ object MainActivity extends Activity {
 
   val log = Log(this.getClass.getSimpleName)
 
-  try {
-    AppCtx.init(new Handler())
-  } catch {
-    case t: Throwable => log("static ctor").error(t, "Failed to create UI executor")
-  }
 }
 
 class MainActivity extends Activity {
@@ -32,6 +27,9 @@ class MainActivity extends Activity {
   var albumStore: AlbumStore = null
 
   override def onCreate(savedInstanceState: Bundle) {
+    AppCtx.init(getResources)
+
+
     super.onCreate(savedInstanceState)
     log("onCreate").debug("HELLO WORLD!")
     setContentView(R.layout.main)

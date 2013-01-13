@@ -1,16 +1,21 @@
 package com.hyperscalelogic.android.util.db
 
-import android.database.Cursor
+import android.database.DatabaseUtils.dumpCurrentRowToString
 import android.database.Cursor._
-import com.hyperscalelogic.android.util.log.Printer
+import com.hyperscalelogic.android.util.log.{Log, Printer}
+import android.database.Cursor
 
 object RichCursor {
+
+  val log = Log(classOf[RichCursor].getSimpleName)
 
   implicit def enrichCursor(c: Cursor) = new RichCursor(c)
 
 }
 
 class RichCursor(val cursor: Cursor) {
+
+  import RichCursor.log
 
   def dump(out: Printer, count: Int = Int.MaxValue) {
     val lastPos = cursor.getPosition
@@ -44,7 +49,7 @@ class RichCursor(val cursor: Cursor) {
   def foreach(f: (Cursor => Unit)) {
     cursor.moveToFirst()
     while (!cursor.isAfterLast) {
-      f(cursor)
+      exec(cursor, f)
       cursor.moveToNext()
     }
   }
@@ -52,8 +57,17 @@ class RichCursor(val cursor: Cursor) {
   def inrange(range: Range = Range(0, Int.MaxValue), f: (Cursor => Unit)) {
     cursor.moveToPosition(range.start)
     while (!cursor.isAfterLast && range.contains(cursor.getPosition)) {
-      f(cursor)
+      exec(cursor, f)
       cursor.moveToNext()
+    }
+  }
+
+  private def exec(c: Cursor, f: (Cursor => Unit)) {
+    val llog = log("exec")
+    try {
+      f(cursor)
+    } catch {
+      case t: Throwable => llog.error(t, "Failed to process cursor at %d with data %s", cursor.getPosition, dumpCurrentRowToString(cursor))
     }
   }
 

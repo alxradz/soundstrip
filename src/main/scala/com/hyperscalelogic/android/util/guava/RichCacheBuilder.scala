@@ -4,7 +4,7 @@ import com.google.common.cache.{CacheBuilder, CacheLoader, Weigher}
 
 object RichCacheBuilder {
 
-  def newCacheBuilder() = CacheBuilder.newBuilder()
+  def newCacheBuilder[K, V]() = CacheBuilder.newBuilder()
 
   implicit def funcToWeigher[K, V](f: (K, V) => Int): Weigher[K, V] = new Weigher[K, V] {
     def weigh(key: K, value: V): Int = f(key, value)

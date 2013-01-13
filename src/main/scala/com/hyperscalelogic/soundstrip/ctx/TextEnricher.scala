@@ -32,6 +32,7 @@ class TextEnricherImpl extends TextEnricher {
 
     cache.get(key, new Callable[SpannableString] {
       def call(): SpannableString = {
+        //TODO support multiple brackets
         var oparen: Int = -1
         var cparen: Int = -1
         var obrack: Int = -1

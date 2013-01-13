@@ -4,7 +4,8 @@
   <string name="button_albums">Albums</string>
   <string name="album_list">Album List</string>
 
-  <dimen name="album_list_art_width">32dp</dimen>
-  <dimen name="album_list_art_height">32dp</dimen>
+  <dimen name="album_list_art_width">48dp</dimen>
+  <dimen name="album_list_art_height">48dp</dimen>
 
+  <color name="transparent">#00000000</color>
 </resources>

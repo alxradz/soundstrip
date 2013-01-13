@@ -2,10 +2,10 @@ package com.hyperscalelogic.soundstrip.adapter
 
 import android.content.{Context => DroidCtx}
 import android.view.{ViewGroup, View, LayoutInflater}
-import gnu.trove.list.TIntList
-import gnu.trove.list.array.TIntArrayList
-import gnu.trove.map.TIntObjectMap
-import gnu.trove.map.hash.TIntObjectHashMap
+import gnu.trove.list.{TLongList, TIntList}
+import gnu.trove.list.array.{TLongArrayList, TIntArrayList}
+import gnu.trove.map.{TLongObjectMap, TIntObjectMap}
+import gnu.trove.map.hash.{TLongObjectHashMap, TIntObjectHashMap}
 import collection.mutable.{Buffer => MBuffer}
 import com.hyperscalelogic.soundstrip.R
 import com.hyperscalelogic.soundstrip.data.Album
@@ -27,8 +27,8 @@ private class AlbumListAdapter(actx: AppCtx, dctx: DroidCtx, resource: Int) exte
 
   val inflater = dctx.getSystemService(DroidCtx.LAYOUT_INFLATER_SERVICE).asInstanceOf[LayoutInflater]
 
-  val list: TIntList = new TIntArrayList()
-  val map: TIntObjectMap[Album] = new TIntObjectHashMap[Album]()
+  val list: TLongList = new TLongArrayList()
+  val map: TLongObjectMap[Album] = new TLongObjectHashMap[Album]()
   val observers: MBuffer[DataSetObserver] = MBuffer()
 
   def add(elems: Seq[Album]) {
@@ -37,8 +37,8 @@ private class AlbumListAdapter(actx: AppCtx, dctx: DroidCtx, resource: Int) exte
   }
 
   def add(elem: Album, notify: Boolean = true) {
-    list.add(elem.id)
-    map.put(elem.id, elem)
+//    list.add(elem.id)
+//    map.put(elem.id, elem)
     if (notify) observers.foreach(_.onChanged())
   }
 

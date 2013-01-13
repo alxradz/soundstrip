@@ -5,6 +5,7 @@ import android.view.{ViewGroup, View}
 
 class SynchListAdapter[T](other: ModListAdapter[T]) extends ModListAdapter[T] {
 
+
   def getCount: Int = this.synchronized(other.getCount)
 
   def getItem(position: Int): AnyRef = this.synchronized(other.getItem(position))

@@ -1,20 +1,20 @@
 package com.hyperscalelogic.soundstrip.activity
 
-import android.app.ListActivity
+import android.app.ExpandableListActivity
 import android.os.Bundle
 import android.provider.BaseColumns._
 import android.provider.MediaStore.Audio.AlbumColumns._
-import com.hyperscalelogic.soundstrip.adapter.AlbumListAdapter
-import com.hyperscalelogic.soundstrip.R
-import com.hyperscalelogic.soundstrip.data.AlbumStore
+import com.hyperscalelogic.soundstrip.adapter.AlbumExpListAdapter
+import com.hyperscalelogic.soundstrip.data.{TrackStore, AlbumStore}
 import com.hyperscalelogic.soundstrip.ctx.AppCtx
 import com.hyperscalelogic.android.util.log.Log
+import com.hyperscalelogic.soundstrip.R
 
-object AlbumListActivity extends ListActivity {
+object AlbumListActivity {
   val log = Log(this.getClass.getSimpleName)
 }
 
-class AlbumListActivity extends ListActivity {
+class AlbumListActivity extends ExpandableListActivity {
 
   import AlbumListActivity._
 
@@ -25,11 +25,15 @@ class AlbumListActivity extends ListActivity {
 
     log("onCreate").debug("Show album list!!")
 
-    val adapter = AlbumListAdapter(AppCtx.instance, this, R.layout.album_item)
+    setContentView(R.layout.exp_list_view)
 
-    setListAdapter(adapter)
+//    getExpandableListView.setDrawingCacheEnabled(true)
+//    getExpandableListView.setScrollingCacheEnabled(true)
 
-    AlbumStore(getContentResolver).foreach(album => adapter.add(album))
+    setListAdapter(AlbumExpListAdapter(AppCtx.instance,
+      this,
+      AlbumStore(getContentResolver),
+      TrackStore(getContentResolver)))
   }
 
 }

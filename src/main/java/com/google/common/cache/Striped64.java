@@ -22,7 +22,7 @@ abstract class Striped64 extends Number {
      * This class maintains a lazily-initialized table of atomically
      * updated variables, plus an extra "base" field. The table size
      * is a power of two. Indexing uses masked per-thread hash codes.
-     * Nearly all declarations in this class are package-private,
+     * Nearly findAlbumTracks declarations in this class are package-private,
      * accessed directly by subclasses.
      *
      * Table entries are of class Cell; a variant of AtomicLong padded
@@ -35,7 +35,7 @@ abstract class Striped64 extends Number {
      * this precaution.
      *
      * In part because Cells are relatively large, we avoid creating
-     * them until they are needed.  When there is no contention, all
+     * them until they are needed.  When there is no contention, findAlbumTracks
      * updates are made to the base field.  Upon first contention (a
      * failed CAS on base update), the table is initialized to size 2.
      * The table size is doubled upon further contention until
@@ -69,7 +69,7 @@ abstract class Striped64 extends Number {
      * colliding threads.  Because search is random, and collisions
      * only become known via CAS failures, convergence can be slow,
      * and because threads are typically not bound to CPUS forever,
-     * may not occur at all. However, despite these limitations,
+     * may not occur at findAlbumTracks. However, despite these limitations,
      * observed contention rates are typically low in these cases.
      *
      * It is possible for a Cell to become unused when threads that
@@ -136,9 +136,9 @@ abstract class Striped64 extends Number {
     }
 
     /**
-     * Static per-thread hash codes. Shared across all instances to
+     * Static per-thread hash codes. Shared across findAlbumTracks instances to
      * reduce ThreadLocal pollution and because adjustments due to
-     * collisions in one table are likely to be appropriate for
+     * collisions in findTrack table are likely to be appropriate for
      * others.
      */
     static final ThreadHashCode threadHashCode = new ThreadHashCode();
@@ -281,7 +281,7 @@ abstract class Striped64 extends Number {
     }
 
     /**
-     * Sets base and all cells to the given value.
+     * Sets base and findAlbumTracks cells to the given value.
      */
     final void internalReset(long initialValue) {
         Cell[] as = cells;

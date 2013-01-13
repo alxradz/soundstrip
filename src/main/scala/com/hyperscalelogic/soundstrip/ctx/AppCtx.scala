@@ -13,29 +13,45 @@ import com.hyperscalelogic.android.util.log.Log
 import com.hyperscalelogic.android.util.guava.RichCacheBuilder._
 import com.hyperscalelogic.android.util.core.ConcurrentUtil.runnable
 import com.hyperscalelogic.soundstrip.cfg.AppCfg
+import android.graphics.drawable.BitmapDrawable
+import android.content.res.Resources
+import com.hyperscalelogic.soundstrip.data.LongId
 
 trait AppCtx {
   val textEnricher: TextEnricher
   def loadBitmapThenPost(file: String, w: Int = -1, h: Int = -1, f: (Bitmap) => Unit)
+  def loadBitmapDrawableThenPost(path: String, w: Int = -1, h: Int = -1, f: (BitmapDrawable) => Unit)
   def enqeueTask(msg: String, f: () => Unit)
 }
 
 object AppCtx {
   val log = Log(this.getClass.getSimpleName)
 
-  var handler: Handler = null
+  var resources: Resources = null
 
-  def init(h: Handler) {
-    if (handler != null && h != handler) throw new IllegalStateException("App context already initialised!")
-    handler = h
+  def init(r: Resources) {
+    if (resources != null) throw new IllegalStateException("App context already initialised!")
+    resources = r
   }
 
-  lazy val instance: AppCtx = new DroidAppCtx
+  lazy val instance: AppCtx = new DroidAppCtx(resources)
   def apply(): AppCtx = instance
 
 }
 
-private class DroidAppCtx extends AppCtx {
+private class BitmapKey(val path: String, val w: Int, val h: Int) {
+  private[this] val hash = Array(path.hashCode, w, h).foldLeft(0)(_ + _ * 67)
+  private[this] val str = "(%s,%dx%d)".format(path, w, h)
+
+  override def equals(other: Any): Boolean = other match {
+    case bmk: BitmapKey => path.equals(bmk.path) && w == bmk.w && h == bmk.h
+    case _ => false
+  }
+  override def hashCode(): Int = hash
+  override def toString: String = str
+}
+
+private class DroidAppCtx(resources: Resources) extends AppCtx {
 
   import AppCtx.log
 
@@ -43,25 +59,41 @@ private class DroidAppCtx extends AppCtx {
     new ThreadFactoryBuilder()
       .setDaemon(true)
       .setNameFormat("bgexec-%d")
-      .setPriority(Thread.NORM_PRIORITY)
+      .setPriority(Thread.MIN_PRIORITY)
       .build())
 
   private val uiexec = new Handler()
   log("ctor").debug("UI executor thread=%s", uiexec.getLooper.getThread.getName)
 
-  private val bitmapCache: LoadingCache[String, Bitmap] =
-    newCacheBuilder()
-      .recordStats()
-      .weigher((k: String, v: Bitmap) => v.getByteCount)
-      .maximumWeight(AppCfg.APP_CTX_BITMAP_CACHE_SIZE_BYTES)
-      .build((k: String) => BitmapFactory.decodeFile(k))
+  private val bmCache: LoadingCache[BitmapKey, Bitmap] = newCacheBuilder()
+    .weigher((k: BitmapKey, v: Bitmap) => v.getByteCount)
+    .maximumWeight(AppCfg.APP_CTX_BITMAP_CACHE_SIZE_BYTES)
+    .build((k: BitmapKey) => {
+    if (k.w > 0 && k.h > 0)
+      scaleBitmap(BitmapFactory.decodeFile(k.path), k.w, k.h, true)
+    else
+      BitmapFactory.decodeFile(k.path)
+  })
+
+  private val bmdCache: LoadingCache[BitmapKey, BitmapDrawable] = newCacheBuilder()
+    .maximumSize(AppCfg.APP_CTX_BITMAP_DRAWALBE_CACHE_MAX_COUNT)
+    .build((k: BitmapKey) => new BitmapDrawable(resources, bmCache.get(k)))
 
   val textEnricher = TextEnricher()
 
-  def loadBitmapThenPost(file: String, w: Int = -1, h: Int = -1, f: (Bitmap) => Unit) {
-    enqeueTask("Loading bitmap: " + file, () => {
-      val bm = if (w > 0 && h > 0) scaleBitmap(bitmapCache.get(file), w, h, true) else bitmapCache.get(file)
+  def loadBitmapThenPost(path: String, w: Int = -1, h: Int = -1, f: (Bitmap) => Unit) {
+    enqeueTask("Loading bitmap: " + path, () => {
+      val key = new BitmapKey(path, w, h)
+      val bm = bmCache.get(key)
       uiexec.post(runnable("Applying bitmap: " + bm, () => f(bm)))
+    })
+  }
+
+  def loadBitmapDrawableThenPost(path: String, w: Int = -1, h: Int = -1, f: (BitmapDrawable) => Unit) {
+    enqeueTask("Loading bitmap: " + path, () => {
+      val key = new BitmapKey(path, w, h)
+      val bmd = bmdCache.get(key)
+      uiexec.post(runnable("Applying bitmap drawable: " + bmd, () => f(bmd)))
     })
   }
 
